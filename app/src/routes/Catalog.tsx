@@ -5,6 +5,7 @@ import { AppShell } from '@/components/app-shell'
 import { PageHeader, EmptyState } from '@/components/page-header'
 import { RequestDrawer } from '@/components/request-drawer'
 import { Input } from '@/components/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useData } from '@/lib/data'
 import { CATALOG_ITEMS } from '@/lib/seed-static'
 import { useUiStore } from '@/lib/store'
@@ -22,16 +23,9 @@ export default function Catalog() {
   const [selected, setSelected] = useState<CatalogItem | null>(null)
   const [open, setOpen] = useState(false)
 
-  const grouped = useMemo(() => {
+  const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const filtered = (items ?? []).filter((i) => !q || `${i.title} ${i.description} ${i.category}`.toLowerCase().includes(q))
-    const map = new Map<string, CatalogItem[]>()
-    filtered.forEach((i) => {
-      const list = map.get(i.category) ?? []
-      list.push(i)
-      map.set(i.category, list)
-    })
-    return [...map.entries()]
+    return (items ?? []).filter((i) => !q || `${i.title} ${i.description} ${i.category}`.toLowerCase().includes(q))
   }, [items, query])
 
   function openItem(item: CatalogItem) {
@@ -49,33 +43,50 @@ export default function Catalog() {
           <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search services…" className="pl-9" aria-label="Search catalog" />
         </div>
 
-        {grouped.length === 0 ? (
+        {filtered.length === 0 ? (
           <EmptyState icon={<PackageOpen className="size-5" />} title="No services match" description="Try a different search term to find the service you need." />
         ) : (
-          grouped.map(([category, catItems]) => (
-            <section key={category} className="space-y-3">
-              <h2 className="font-heading text-sm font-semibold text-muted-foreground">{category}</h2>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {catItems.map((item) => (
-                  <button
+          <div className="overflow-hidden rounded-lg border border-border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Service</TableHead>
+                  <TableHead className="hidden md:table-cell">Category</TableHead>
+                  <TableHead className="hidden lg:table-cell">Estimated fulfillment</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((item) => (
+                  <TableRow
                     key={item.id}
-                    type="button"
+                    tabIndex={0}
                     onClick={() => openItem(item)}
-                    className="group flex flex-col gap-2 rounded-lg border border-border bg-card p-4 text-left transition-colors hover:border-primary/50 hover:bg-accent/40"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        openItem(item)
+                      }
+                    }}
+                    className="cursor-pointer"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <span className="flex size-9 items-center justify-center rounded-md bg-[color-mix(in_srgb,var(--primary),transparent_88%)]">
-                        <CatalogIcon name={item.icon} />
-                      </span>
-                      <span className="font-medium">{item.title}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground text-pretty">{item.description}</p>
-                    <span className="mt-auto text-xs text-muted-foreground">{item.fulfillmentEstimate}</span>
-                  </button>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-[color-mix(in_srgb,var(--primary),transparent_88%)]">
+                          <CatalogIcon name={item.icon} />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="font-medium">{item.title}</div>
+                          <p className="truncate text-sm text-muted-foreground">{item.description}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden text-muted-foreground md:table-cell">{item.category}</TableCell>
+                    <TableCell className="hidden text-muted-foreground lg:table-cell">{item.fulfillmentEstimate}</TableCell>
+                  </TableRow>
                 ))}
-              </div>
-            </section>
-          ))
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
       <RequestDrawer item={selected} open={open} onOpenChange={setOpen} source={role === 'employee' ? 'portal' : 'catalog'} />
