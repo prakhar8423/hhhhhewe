@@ -119,7 +119,7 @@ export default function Dashboard() {
   return (
     <AppShell>
       <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
-        <PageHeader title="Service desk overview 1234" description="Live queue health, SLA attainment, and what needs attention right now." />
+        <PageHeader title="Service desk overview" description="Live queue health, SLA attainment, and what needs attention right now." />
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Kpi icon={<Inbox className="size-4" />} label="Open tickets" value={String(metrics.openCount)} />
