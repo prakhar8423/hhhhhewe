@@ -1,53 +1,25 @@
 import { Fragment, useMemo, useState } from 'react'
 import * as Icons from 'lucide-react'
-import { Search, PackageOpen, LayoutGrid, Rows3 } from 'lucide-react'
+import { Search, PackageOpen } from 'lucide-react'
 import { AppShell } from '@/components/app-shell'
 import { PageHeader, EmptyState } from '@/components/page-header'
 import { RequestDrawer } from '@/components/request-drawer'
 import { PriorityPill } from '@/components/pills'
+import { ViewToggle } from '@/components/view-toggle'
+import type { ViewMode } from '@/components/view-toggle'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { cn } from '@/lib/utils'
 import { useData } from '@/lib/data'
 import { CATALOG_ITEMS } from '@/lib/seed-static'
 import { useUiStore } from '@/lib/store'
 import type { CatalogItem } from '@/lib/types'
-
-const CATALOG_VIEWS = ['cards', 'table'] as const
-type CatalogView = (typeof CATALOG_VIEWS)[number]
 
 type GroupedCatalog = [string, CatalogItem[]][]
 
 function CatalogIcon({ name }: { name: string }) {
   const Icon = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[name] ?? Icons.Package
   return <Icon className="size-5 text-primary" />
-}
-
-function ViewToggle({ view, onViewChange }: { view: CatalogView; onViewChange: (view: CatalogView) => void }) {
-  const OPTIONS = [
-    { value: 'cards', label: 'Card view', icon: LayoutGrid },
-    { value: 'table', label: 'Table view', icon: Rows3 },
-  ] as const
-  return (
-    <div className="flex items-center rounded-md border border-border bg-card p-0.5" role="group" aria-label="Catalog layout">
-      {OPTIONS.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => onViewChange(opt.value)}
-          aria-pressed={view === opt.value}
-          aria-label={opt.label}
-          className={cn(
-            'flex size-8 items-center justify-center rounded transition-colors',
-            view === opt.value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          <opt.icon className="size-4" />
-        </button>
-      ))}
-    </div>
-  )
 }
 
 function CatalogCards({ grouped, onSelect }: { grouped: GroupedCatalog; onSelect: (item: CatalogItem) => void }) {
@@ -149,7 +121,7 @@ export default function Catalog() {
   const { data: items } = useData<CatalogItem[]>('catalog-items', 'seed', CATALOG_ITEMS)
   const role = useUiStore((s) => s.role)
   const [query, setQuery] = useState('')
-  const [view, setView] = useState<CatalogView>('cards')
+  const [view, setView] = useState<ViewMode>('cards')
   const [selected, setSelected] = useState<CatalogItem | null>(null)
   const [open, setOpen] = useState(false)
 

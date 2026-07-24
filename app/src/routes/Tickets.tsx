@@ -1,9 +1,12 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { FilterX, Inbox, X } from 'lucide-react'
 import { AppShell } from '@/components/app-shell'
 import { PageHeader, EmptyState } from '@/components/page-header'
 import { TicketTable } from '@/components/ticket-table'
+import { TicketCards } from '@/components/ticket-cards'
+import { ViewToggle } from '@/components/view-toggle'
+import type { ViewMode } from '@/components/view-toggle'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -36,6 +39,7 @@ export default function Tickets() {
 
   const ui = useUiStore()
   const { queueTab, search, filterStatus, filterPriority, filterSla, selectedIds } = ui
+  const [view, setView] = useState<ViewMode>('table')
 
   const filtered = useMemo(
     () =>
@@ -67,7 +71,19 @@ export default function Tickets() {
   return (
     <AppShell>
       <div className="mx-auto max-w-7xl space-y-5 p-4 sm:p-6">
-        <PageHeader title="Ticket queue" description={`${filtered.length} ticket${filtered.length === 1 ? '' : 's'} matching your view.`} />
+        <PageHeader
+          title="Ticket queue"
+          description={`${filtered.length} ticket${filtered.length === 1 ? '' : 's'} matching your view.`}
+          actions={
+            <ViewToggle
+              view={view}
+              onViewChange={(v) => {
+                if (v === 'cards') ui.clearSelected()
+                setView(v)
+              }}
+            />
+          }
+        />
 
         <Tabs value={queueTab} onValueChange={ui.setQueueTab}>
           <TabsList>
@@ -129,7 +145,7 @@ export default function Tickets() {
           ) : null}
         </div>
 
-        {selectedIds.length > 0 ? (
+        {view === 'table' && selectedIds.length > 0 ? (
           <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-accent/50 px-3 py-2">
             <span className="text-sm font-medium">{selectedIds.length} selected</span>
             <Select onValueChange={(v) => handleBulkStatus(v as Status)}>
@@ -178,6 +194,8 @@ export default function Tickets() {
           ) : (
             <EmptyState icon={<Inbox className="size-5" />} title="No tickets in this view" description="Nothing needs your attention here right now." />
           )
+        ) : view === 'cards' ? (
+          <TicketCards tickets={filtered} now={now} />
         ) : (
           <TicketTable
             tickets={filtered}
