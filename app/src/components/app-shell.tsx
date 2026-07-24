@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Ticket,
   LayoutGrid,
+  Trophy,
   BookOpen,
   LifeBuoy,
   Search,
@@ -22,6 +23,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 const AGENT_NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/tickets', label: 'Tickets', icon: Ticket },
+  { to: '/top-agents', label: 'Top Agents', icon: Trophy },
   { to: '/catalog', label: 'Service Catalog', icon: LayoutGrid },
   { to: '/kb', label: 'Knowledge Base', icon: BookOpen },
   { to: '/portal', label: 'Employee Portal', icon: LifeBuoy },

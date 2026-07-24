@@ -3,6 +3,7 @@ import Login from '@/routes/Login'
 import ForgotPassword from '@/routes/ForgotPassword'
 import UpdatePassword from '@/routes/UpdatePassword'
 import Dashboard from '@/routes/Dashboard'
+import TopAgents from '@/routes/TopAgents'
 import Tickets from '@/routes/Tickets'
 import TicketDetail from '@/routes/TicketDetail'
 import Catalog from '@/routes/Catalog'
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/" element={<Dashboard />} />
+        <Route path="/top-agents" element={<TopAgents />} />
         <Route path="/tickets" element={<Tickets />} />
         <Route path="/tickets/:id" element={<TicketDetail />} />
         <Route path="/catalog" element={<Catalog />} />
