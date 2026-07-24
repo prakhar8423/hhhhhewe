@@ -8,6 +8,11 @@ import {
   LineChart,
   Pie,
   PieChart,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -130,32 +135,29 @@ export default function Dashboard() {
 
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <div className="flex h-full flex-col rounded-lg border border-border bg-card p-4">
-              <h2 className="font-heading text-sm font-semibold">Open tickets by status</h2>
-              <div className="mt-4 flex flex-1 flex-col justify-center gap-4">
-                {statusTotal === 0 ? (
-                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No open tickets</div>
-                ) : (
-                  statusData.map((s, i) => {
-                    const pct = Math.round((s.value / statusTotal) * 100)
-                    const color = CHART_TOKENS[i % CHART_TOKENS.length]
-                    return (
-                      <div key={s.name} className="space-y-1.5">
-                        <div className="flex items-baseline justify-between gap-3 text-sm">
-                          <span className="font-medium">{s.name}</span>
-                          <span className="text-muted-foreground tabular-nums">
-                            <span className="font-heading font-semibold text-foreground">{s.value}</span> · {pct}%
-                          </span>
-                        </div>
-                        <div className="h-2.5 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
-                        </div>
-                      </div>
-                    )
-                  })
-                )}
-              </div>
-            </div>
+            <ChartCard title="Open tickets by status">
+              {statusTotal === 0 ? (
+                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No open tickets</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={statusData} outerRadius="72%">
+                    <PolarGrid stroke="var(--border)" />
+                    <PolarAngleAxis dataKey="name" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                    <PolarRadiusAxis allowDecimals={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} axisLine={false} />
+                    <Radar
+                      dataKey="value"
+                      stroke="var(--chart-1)"
+                      fill="var(--chart-1)"
+                      fillOpacity={0.35}
+                      strokeWidth={2}
+                    />
+                    <Tooltip
+                      contentStyle={{ background: 'var(--popover)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--popover-foreground)' }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              )}
+            </ChartCard>
           </div>
           <ChartCard title="Open by priority">
             {priorityData.length === 0 ? (
